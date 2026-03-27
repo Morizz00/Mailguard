@@ -1,0 +1,4 @@
+./dns.go
+./history.go
+./rust_client.go
+./score_client.go
