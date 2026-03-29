@@ -24,7 +24,7 @@ func CheckHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-	domain := cleanDomain(req.Domain)
+	domain := CleanDomain(req.Domain)
 	if domain == "" {
 		http.Error(w, "Invalid domain", http.StatusBadRequest)
 		return
@@ -67,7 +67,7 @@ func buildResult(ctx context.Context, domain string) models.DomainResult {
 
 }
 
-func cleanDomain(domain string) string {
+func CleanDomain(domain string) string {
 	domain = strings.TrimSpace(strings.ToLower(domain))
 	domain = strings.TrimPrefix(domain, "http://")
 	domain = strings.TrimPrefix(domain, "https://")

@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  # Rust DNS/RFC Parser microservice
+  parser:
+    build:
+      context: ./parser
+      dockerfile: Dockerfile
+    container_name: mailguard-parser
+    ports:
+      - "7070:7070"
+    environment:
+      RUST_LOG: info
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7070/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    networks:
+      - mailguard
+
+  # Python AI Scorer service
+  scorer:
+    build:
+      context: ./scorer
+      dockerfile: Dockerfile
+    container_name: mailguard-scorer
+    ports:
+      - "7090:7090"
+    environment:
+      MODEL: "meta-llama/llama-3.3-70b-instruct:free"
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:7090/health', timeout=5)"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - mailguard
+
+  # React frontend build stage
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: mailguard-web-builder
+    volumes:
+      - web-dist:/app/dist
+    networks:
+      - mailguard
+
+  # Go API server (serves both API and frontend)
+  api:
+    build:
+      context: ./api
+      dockerfile: DockerFile
+    container_name: mailguard-api
+    ports:
+      - "8082:8082"
+    depends_on:
+      parser:
+        condition: service_healthy
+      scorer:
+        condition: service_started
+      web:
+        condition: service_completed_successfully
+    volumes:
+      - web-dist:/app/dist:ro
+    environment:
+      PORT: 8082
+      STATIC_DIR: /app/dist
+      RUST_PARSER_URL: http://parser:7070
+      RUST_PARSER_TIMEOUT_MS: 2000
+      SCORER_URL: http://scorer:7090
+      SCORER_TIMEOUT_MS: 5000
+      BULK_TIMEOUT_SEC: 15
+      LOG_LEVEL: info
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8082/api/v1/history"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    networks:
+      - mailguard
+
+volumes:
+  web-dist:
+
+networks:
+  mailguard:
+    driver: bridge

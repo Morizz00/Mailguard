@@ -1,6 +1,65 @@
+# Rust build artifacts
+/parser/target/
+Cargo.lock
+
+# Node/React
+/web/node_modules/
+/web/dist/
+/web/.vite/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.env
+venv/
+env/
+scorer/__pycache__/
+
+# IDE/Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-workspace
+*.sublime-project
+
+# OS
+Thumbs.db
+.env.local
+.env.*.local
+
+# Misc
+*.log
+.cache/
+.temp/
+
+# Documentation (phase files)
 PHASE_1_GO_API.md
 PHASE_2_REACT.md
 PHASE_3_RUST.md
 PHASE_4_PYTHON_AI.md
 PLAN.md
+DEPLOY_CLOUDFLARE.md
 setup_mailg.sh
+INTEGRATION_COMPLETE.md
+INTEGRATION_GUIDE.md
