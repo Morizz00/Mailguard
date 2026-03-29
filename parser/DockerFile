@@ -1,4 +1,4 @@
-FROM rust:1.77-slim AS builder
+FROM rust:1.84-slim AS builder
 
 WORKDIR /app
 
@@ -14,6 +14,6 @@ RUN touch src/main.rs && cargo build --release
 
 FROM debian:bookworm-slim
 RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
-COPY --from=builder /app/target/release/parser /usr/local/bin/parser
+COPY --from=builder /app/target/release/mailguard-parser /usr/local/bin/parser
 EXPOSE 7070
 CMD ["parser"]
