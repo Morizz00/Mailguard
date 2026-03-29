@@ -32,28 +32,44 @@ type ScoreResponse struct {
 	AIGenerated     bool                  `json:"aiGenerated"`
 }
 
-func ScoreDomain(ctx context.Context, res models.DomainResult) (*models.ScoreResult, error) {
+// ScoreDomain sends DNS results to the Python scorer.
+// parsed is the output of ParseRecords (may be nil if the Rust parser was unavailable).
+func ScoreDomain(ctx context.Context, res models.DomainResult, parsed *ParsedRecords) (*models.ScoreResult, error) {
 	scorerURL := os.Getenv("SCORER_URL")
 	if scorerURL == "" {
 		return nil, fmt.Errorf("SCORER_URL not set")
 	}
 
-	// Build request payload
-	scoreReq := ScoreRequest{
-		Domain: res.Domain,
-		MX:     res.MX,
-		SPF:    res.SPF,
-		DMARC:  res.DMARC,
+	// Start from the raw DNS result, then overlay Rust-parsed fields where available.
+	mx := res.MX
+	spf := res.SPF
+	dmarc := res.DMARC
+
+	if parsed != nil {
+		if parsed.MX != nil {
+			mx.Parsed = parsed.MX
+		}
+		if parsed.SPF != nil {
+			spf.Parsed = parsed.SPF
+		}
+		if parsed.DMARC != nil {
+			dmarc.Parsed = parsed.DMARC
+		}
 	}
 
-	// Marshal to JSON
+	scoreReq := ScoreRequest{
+		Domain: res.Domain,
+		MX:     mx,
+		SPF:    spf,
+		DMARC:  dmarc,
+	}
+
 	payload, err := json.Marshal(scoreReq)
 	if err != nil {
 		slog.Error("failed to marshal score request", "domain", res.Domain, "error", err)
 		return nil, fmt.Errorf("failed to marshal score request: %w", err)
 	}
 
-	// Create HTTP request with context
 	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, scorerURL+"/score", bytes.NewReader(payload))
 	if err != nil {
 		slog.Error("failed to create score request", "domain", res.Domain, "url", scorerURL, "error", err)
@@ -62,13 +78,11 @@ func ScoreDomain(ctx context.Context, res models.DomainResult) (*models.ScoreRes
 
 	httpReq.Header.Set("Content-Type", "application/json")
 
-	// Get timeout from environment or default to 5 seconds
 	timeoutMs := getEnvInt("SCORER_TIMEOUT_MS", 5000)
 	client := &http.Client{
 		Timeout: time.Duration(timeoutMs) * time.Millisecond,
 	}
 
-	// Make request
 	resp, err := client.Do(httpReq)
 	if err != nil {
 		slog.Error("scorer service request failed", "domain", res.Domain, "url", scorerURL, "error", err)
@@ -76,21 +90,18 @@ func ScoreDomain(ctx context.Context, res models.DomainResult) (*models.ScoreRes
 	}
 	defer resp.Body.Close()
 
-	// Check response status
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
 		slog.Error("scorer service error", "domain", res.Domain, "status", resp.StatusCode, "response", string(body))
 		return nil, fmt.Errorf("scorer returned status %d: %s", resp.StatusCode, string(body))
 	}
 
-	// Parse response
 	var scoreResp ScoreResponse
 	if err := json.NewDecoder(resp.Body).Decode(&scoreResp); err != nil {
 		slog.Error("failed to parse score response", "domain", res.Domain, "error", err)
 		return nil, fmt.Errorf("failed to parse scorer response: %w", err)
 	}
 
-	// Convert to models.ScoreResult
 	result := &models.ScoreResult{
 		Score:           scoreResp.Score,
 		Grade:           scoreResp.Grade,
