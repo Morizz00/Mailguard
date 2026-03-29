@@ -362,7 +362,6 @@ mailchecker/
 
 
 ## License
-## License
 
 MIT License
 
