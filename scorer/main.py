@@ -266,3 +266,6 @@ def score(req: ScoreRequest) -> ScoreResponse:
         except Exception as e:
             print(f"Failed to parse AI response for {req.domain}: {e}")
     return fallback_score(req)
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 8000)))
