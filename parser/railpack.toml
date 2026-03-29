@@ -1,0 +1,5 @@
+[deploy]
+startCommand = "./target/release/parser"
+
+[build]
+rustBinaryName = "parser"
