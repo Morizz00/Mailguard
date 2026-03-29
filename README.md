@@ -2,12 +2,6 @@
 
 MailGuard is a comprehensive email security verification system that checks domain configurations (MX, SPF, DMARC records) and provides AI-powered security scoring. Built with Go, Rust, React, and Python across 4 integrated phases.
 
-## What's Included
-
-- **Phase 1**: Go REST API gateway serving frontend + coordinating services
-- **Phase 2**: React 19 frontend with Tailwind CSS for interactive domain checking
-- **Phase 3**: Rust Axum parser for RFC-compliant DNS record parsing
-- **Phase 4**: Python FastAPI scorer with OpenRouter AI integration for security analysis
 
 ## Quick Start
 
@@ -344,17 +338,7 @@ mailchecker/
 │   └── tailwind.config.ts        # Tailwind configuration
 ├── docker-compose.yml             # Multi-service orchestration
 ├── build.sh / build.bat           # Build scripts
-├── .env.local                     # Development environment
-├── .env.production                # Docker environment template
-├── INTEGRATION_GUIDE.md           # Complete technical guide
-├── INTEGRATION_COMPLETE.md        # Integration summary
 ├── README.md                      # This file
-├── QUICKSTART.md                  # Deprecated (merged into README)
-├── PLAN.md                        # Original master plan
-├── PHASE_1_GO_API.md
-├── PHASE_2_REACT.md
-├── PHASE_3_RUST.md
-└── PHASE_4_PYTHON_AI.md
 ```
 
 ## Development Notes
@@ -376,19 +360,10 @@ mailchecker/
 - **Go test suite**: 5 seconds (40+ tests)
 - **Frontend bundle**: 299 KB total (~82 KB gzipped)
 
-## For More Information
-
-- **[INTEGRATION_GUIDE.md](INTEGRATION_GUIDE.md)** - Complete architecture & detailed API documentation
-- **[INTEGRATION_COMPLETE.md](INTEGRATION_COMPLETE.md)** - Integration summary with deployment options
-- **[PHASE_1_GO_API.md](PHASE_1_GO_API.md)** - Go API implementation details
-- **[PHASE_2_REACT.md](PHASE_2_REACT.md)** - React frontend implementation
-- **[PHASE_3_RUST.md](PHASE_3_RUST.md)** - Rust parser implementation & RFC compliance
-- **[PHASE_4_PYTHON_AI.md](PHASE_4_PYTHON_AI.md)** - Python scorer & AI integration
-- **[PLAN.md](PLAN.md)** - Original master plan
 
 ## License
 
-No license file currently included. Please see individual component repositories for their licenses.
+
 
 ---
 
