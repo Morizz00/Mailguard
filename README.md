@@ -1,5 +1,7 @@
 # MailGuard
 
+https://mailguard-omega.vercel.app/
+
 MailGuard is a comprehensive email security verification system that checks domain configurations (MX, SPF, DMARC records) and provides AI-powered security scoring. Built with Go, Rust, React, and Python across 4 integrated phases.
 
 
