@@ -36,7 +36,7 @@ type SPFParsed struct {
 	Warnings    []string       `json:"warnings"`
 	IsValid     bool           `json:"isValid"`
 	LookupCount int            `json:"lookupCount"`
-	Qualifier   string         `json:"qualifier"`
+	Qualifier   string         `json:"allQualifier"`
 }
 type SPFMechanism struct {
 	Type      string `json:"type"`

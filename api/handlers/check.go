@@ -54,17 +54,21 @@ func buildResult(ctx context.Context, domain string) models.DomainResult {
 		SPF:       raw.SPF,
 		DMARC:     raw.DMARC,
 	}
-	if parsed, err := services.ParseRecords(ctx, raw); err == nil {
+
+	// Parse records via Rust service; nil on failure is safe.
+	parsed, err := services.ParseRecords(ctx, raw)
+	if err == nil {
 		res.MX.Parsed = parsed.MX
 		res.SPF.Parsed = parsed.SPF
 		res.DMARC.Parsed = parsed.DMARC
 	}
-	if score, err := services.ScoreDomain(ctx, res); err == nil {
+
+	// Pass parsed through so ScoreDomain doesn't re-send nil Parsed fields.
+	if score, err := services.ScoreDomain(ctx, res, parsed); err == nil {
 		res.Score = score
 	}
 
 	return res
-
 }
 
 func CleanDomain(domain string) string {
