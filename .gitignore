@@ -1,6 +1,5 @@
 # Rust build artifacts
 /parser/target/
-Cargo.lock
 
 # Node/React
 /web/node_modules/
