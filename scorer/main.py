@@ -117,7 +117,7 @@ def _score_spf(req: ScoreRequest) -> int:
             score -= 5
     else:
         score += 5
-    return max(0, score)
+    return max(0, min(35, score)) 
 
 
 def _score_dmarc(req: ScoreRequest) -> int:
